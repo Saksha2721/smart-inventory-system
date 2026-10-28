@@ -1,0 +1,7 @@
+flowchart LR
+  Browser[React + Vite dashboard] -->|JSON REST| API[Express API]
+  API -->|prepared SQL / transactions| DB[(SQLite database)]
+  DB --> Schema[Relational schema and constraints]
+  API --> Dash[Dashboard aggregates]
+  API --> Ops[Stock operations]
+  Ops -->|atomic inventory + audit updates| DB

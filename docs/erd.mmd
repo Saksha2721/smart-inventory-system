@@ -1,0 +1,20 @@
+erDiagram
+  USERS ||--o{ STOCK_TRANSACTIONS : records
+  SUPPLIERS ||--o{ PRODUCTS : supplies
+  SUPPLIERS ||--o{ PURCHASE_ORDERS : receives
+  PRODUCTS ||--o{ INVENTORY : stocked_as
+  WAREHOUSES ||--o{ INVENTORY : contains
+  PRODUCTS ||--o{ STOCK_TRANSACTIONS : moved
+  WAREHOUSES ||--o{ STOCK_TRANSACTIONS : occurs_at
+  WAREHOUSES ||--o{ PURCHASE_ORDERS : delivered_to
+  PURCHASE_ORDERS ||--|{ PURCHASE_ORDER_ITEMS : includes
+  PRODUCTS ||--o{ PURCHASE_ORDER_ITEMS : ordered
+
+  USERS { int id PK string name string email UK string role }
+  SUPPLIERS { int id PK string name string contact_name string email string phone }
+  PRODUCTS { int id PK string sku UK string name string category string unit int reorder_level int supplier_id FK }
+  WAREHOUSES { int id PK string name UK string location string manager }
+  INVENTORY { int id PK int product_id FK int warehouse_id FK int quantity }
+  STOCK_TRANSACTIONS { int id PK int product_id FK int warehouse_id FK string type int quantity string reference int user_id FK datetime created_at }
+  PURCHASE_ORDERS { int id PK int supplier_id FK int warehouse_id FK string status float total datetime created_at }
+  PURCHASE_ORDER_ITEMS { int id PK int purchase_order_id FK int product_id FK int quantity float unit_cost }
