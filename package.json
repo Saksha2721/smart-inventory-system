@@ -2,11 +2,15 @@
   "name": "smart-inventory-logistics",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "pnpm@11.25.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently -k \"npm:server\" \"npm:client\"",
+    "dev": "concurrently -k \"node server/index.js\" \"vite --host 0.0.0.0\"",
     "client": "vite --host 0.0.0.0",
     "server": "node server/index.js",
+    "create-admin": "node server/create-admin.js",
+    "migrate:postgres": "node server/migrate-sqlite-to-postgres.js",
+    "test": "node test/rdbms.test.js && node test/postgres.test.js",
     "build": "vite build",
     "start": "node server/index.js"
   },
@@ -15,11 +19,14 @@
     "dotenv": "^18.0.9",
     "express": "^4.21.2",
     "lucide-react": "^0.468.0",
+    "pg": "^8.23.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "sql.js": "^1.13.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.16",
+    "@electric-sql/pglite-socket": "^0.2.19",
     "@vitejs/plugin-react": "^4.3.4",
     "concurrently": "^9.1.2",
     "vite": "^6.0.5"

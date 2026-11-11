@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: stockflow-smart-inventory
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: corepack pnpm install --frozen-lockfile --prod=false && corepack pnpm build
+    startCommand: corepack pnpm start
+    healthCheckPath: /api/health
+    autoDeploy: false
+    envVars:
+      - key: NODE_VERSION
+        value: 24
+      - key: NODE_ENV
+        value: production
+      - key: DB_DRIVER
+        value: postgres
+      - key: DATABASE_URL
+        sync: false
+      - key: PG_POOL_MAX
+        value: 5

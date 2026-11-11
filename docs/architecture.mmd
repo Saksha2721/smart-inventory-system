@@ -1,7 +1,15 @@
 flowchart LR
-  Browser[React + Vite dashboard] -->|JSON REST| API[Express API]
-  API -->|prepared SQL / transactions| DB[(SQLite database)]
-  DB --> Schema[Relational schema and constraints]
-  API --> Dash[Dashboard aggregates]
-  API --> Ops[Stock operations]
-  Ops -->|atomic inventory + audit updates| DB
+  Browser[React + Vite dashboard and login] -->|HTTPS JSON, HTTP-only cookie| Express[Express API and static build]
+  Express --> Auth[Session validation, role checks, warehouse scope]
+  Auth --> Provision[Admin provisioning and employee management]
+  Express --> Reports[Dashboard, analytics, low-stock alerts, CSV data]
+  Express --> Ops[Stock operations and purchase-order receiving]
+  Ops -->|Atomic inventory + employee audit rows| SelectDB{DB_DRIVER}
+  Reports -->|Prepared parameterized queries| SelectDB
+  SelectDB -->|Local development| SQLite[(SQLite through sql.js)]
+  SelectDB -->|Production| PostgreSQL[(Neon PostgreSQL over verified TLS)]
+  SQLite --> SQLiteSchema[server/schema.sql, additive local migrations]
+  PostgreSQL --> PgSchema[server/postgres-schema.sql, PostgreSQL views and constraints]
+  Browser -. production hosting .-> Render[Render Free Web Service]
+  Render -. HTTPS API and built frontend .-> Express
+  SQLite -. one-time verified copy migration .-> PostgreSQL
