@@ -111,6 +111,12 @@ test('PostgreSQL adapter and API support authentication, permissions, stock, tra
 
     const stockIn=await request('/transactions',adminCookie,{method:'POST',body:JSON.stringify({type:'stock_in',product_id:productId,warehouse_id:warehouseOne,quantity:4})});
     assert.equal(stockIn.status,201,JSON.stringify(stockIn.body));
+    const dashboardAfterStockIn=await request('/dashboard?days=30',adminCookie);
+    assert.equal(dashboardAfterStockIn.status,200,JSON.stringify(dashboardAfterStockIn.body));
+    const dashboardMovementTotals=dashboardAfterStockIn.body.movement.reduce((totals,row)=>({inbound:totals.inbound+Number(row.inbound),outbound:totals.outbound+Number(row.outbound)}),{inbound:0,outbound:0});
+    const expectedDashboardMovement=await db.prepare("SELECT COALESCE(SUM(CASE WHEN type IN ('stock_in','transfer_in') THEN quantity ELSE 0 END),0) inbound,COALESCE(SUM(CASE WHEN type IN ('stock_out','transfer_out') THEN quantity ELSE 0 END),0) outbound FROM stock_transactions WHERE date(created_at) BETWEEN ? AND ?").get(dashboardAfterStockIn.body.movementRange.from,dashboardAfterStockIn.body.movementRange.to);
+    assert.equal(dashboardMovementTotals.inbound,Number(expectedDashboardMovement.inbound));
+    assert.equal(dashboardMovementTotals.outbound,Number(expectedDashboardMovement.outbound));
     const stockOut=await request('/transactions',staffCookie,{method:'POST',body:JSON.stringify({type:'stock_out',product_id:productId,warehouse_id:warehouseOne,quantity:2})});
     assert.equal(stockOut.status,201,JSON.stringify(stockOut.body));
     assert.equal(Number((await db.prepare('SELECT quantity FROM inventory WHERE product_id=? AND warehouse_id=?').get(productId,warehouseOne)).quantity),12);
