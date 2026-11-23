@@ -9,6 +9,17 @@ import { db } from './database.js';
 import { receivePurchaseOrder } from './purchase-order-service.js';
 
 const app=express();
+const diagnosticStack=value=>value instanceof Error?value.stack||`${value.name}: ${value.message}`:value&&typeof value==='object'&&typeof value.stack==='string'?value.stack:'(no stack available)';
+process.on('uncaughtExceptionMonitor',(error,origin)=>{
+ console.error(`[uncaughtException] origin=${origin}\n${diagnosticStack(error)}`);
+});
+process.on('unhandledRejection',reason=>{
+ console.error(`[unhandledRejection] reason=${String(reason)}\n${diagnosticStack(reason)}`);
+ // Keep Node's default fatal handling for unhandled rejections.
+ process.nextTick(()=>{throw reason;});
+});
+process.on('beforeExit',code=>console.info(`[beforeExit] code=${code}`));
+process.on('exit',code=>console.info(`[exit] code=${code}`));
 const scrypt=promisify(scryptCallback);
 const PORT=Number(process.env.PORT||4000);
 const HOST=process.env.HOST||'0.0.0.0';
