@@ -27,4 +27,5 @@ secrets/
 *.tmp
 server/migration-report.json
 server/migration-report-*.json
+server/reset-admin-temp.js
 .DS_Store
